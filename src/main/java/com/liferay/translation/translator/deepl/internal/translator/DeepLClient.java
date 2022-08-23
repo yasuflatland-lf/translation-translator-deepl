@@ -24,16 +24,8 @@ import java.io.IOException;
 )
 public class DeepLClient {
 
-//  @Retry(
-//      acceptor = ExceptionRetryAcceptor.class,
-//      properties = {
-//          @Property(
-//              name = ExceptionRetryAcceptor.EXCEPTION_NAME,
-//              value = "org.hibernate.StaleObjectStateException"
-//          )
-//      }
-//  )
-  public TranslateResponse execute(String authKey, String text, String sourcelang, String targetLang, String url) throws IOException {
+  public TranslateResponse execute(String authKey, String text, String sourcelang, String targetLang, String url)
+      throws IOException {
     String rawRes = _fetch(authKey, text, sourcelang, targetLang, url);
 
     return JSONUtil.toObject(rawRes,TranslateResponse.class );
@@ -54,9 +46,6 @@ public class DeepLClient {
 
     options.addHeader(
         HttpHeaders.CONTENT_TYPE, ContentTypes.APPLICATION_X_WWW_FORM_URLENCODED);
-//    options.setBody(
-//        _getTranslatorPacketPayload(translatorPacket),
-//        ContentTypes.APPLICATION_JSON, StringPool.UTF8);
     options.addPart(DeepLConstants.AUTH_KEY, authKey);
     options.addPart(DeepLConstants.TEXT, text);
     options.addPart(DeepLConstants.SOURCE_LANG, sourcelang);

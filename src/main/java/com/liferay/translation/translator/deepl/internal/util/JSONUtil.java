@@ -38,7 +38,6 @@ public class JSONUtil {
     //mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     mapper.enable(DeserializationFeature.FAIL_ON_NULL_CREATOR_PROPERTIES);
 
-
     return mapper.readValue(jsonString, clazz);
   }
 

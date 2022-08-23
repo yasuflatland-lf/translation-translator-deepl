@@ -15,32 +15,30 @@ import java.util.Dictionary;
  * @author Yasuyuki Takeo
  */
 @Component(
-        immediate = true,
-        property = "model.class.name=com.liferay.translation.translator.deepl.internal.configuration.DeepLTranslatorConfiguration",
-        service = ConfigurationModelListener.class
+    immediate = true,
+    property = "model.class.name=com.liferay.translation.translator.deepl.internal.configuration.DeepLTranslatorConfiguration",
+    service = ConfigurationModelListener.class
 )
 public class DeepLTranslatorConfigurationModelListener implements ConfigurationModelListener {
-    @Override
-    public void onBeforeSave(String pid, Dictionary<String, Object> properties)
-            throws ConfigurationModelListenerException {
+  @Override
+  public void onBeforeSave(String pid, Dictionary<String, Object> properties)
+      throws ConfigurationModelListenerException {
 
-        boolean enabled = GetterUtil.getBoolean(properties.get("enabled"));
-        String authKey = GetterUtil.getString(properties.get("authKey"));
+    boolean enabled = GetterUtil.getBoolean(properties.get("enabled"));
+    String authKey = GetterUtil.getString(properties.get("authKey"));
+    String url = GetterUtil.getString(properties.get("url"));
 
-        if (enabled && !_isValid(authKey)) {
-            throw new ConfigurationModelListenerException(
-                    _language.get(
-                            LocaleThreadLocal.getThemeDisplayLocale(),
-                            "the-auth-key-must-be-configured"),
-                    DeepLTranslatorConfiguration.class, getClass(),
-                    properties);
-        }
+    if (enabled) {
+      if (authKey.isEmpty() || url.isEmpty())
+        throw new ConfigurationModelListenerException(
+            _language.get(
+                LocaleThreadLocal.getThemeDisplayLocale(),
+                "the-auth-key-and-url-must-be-configured"),
+            DeepLTranslatorConfiguration.class, getClass(),
+            properties);
     }
+  }
 
-    protected boolean _isValid(String authKey) {
-        return !authKey.isEmpty();
-    }
-
-    @Reference
-    private Language _language;
+  @Reference
+  private Language _language;
 }

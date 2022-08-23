@@ -2,6 +2,7 @@ package com.liferay.translation.translator.deepl.internal.translator;
 
 import com.liferay.petra.string.CharPool;
 import com.liferay.petra.string.StringUtil;
+import com.liferay.portal.configuration.metatype.bnd.util.ConfigurableUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -12,7 +13,9 @@ import com.liferay.translation.translator.Translator;
 import com.liferay.translation.translator.TranslatorPacket;
 import com.liferay.translation.translator.deepl.internal.configuration.DeepLTranslatorConfiguration;
 import com.liferay.translation.translator.deepl.internal.model.TranslateResponse;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
 
 import java.io.IOException;
@@ -75,7 +78,6 @@ public class DeepLTranslator implements Translator {
                 value, sourceLanguageCode, targetLanguageCode)));
 
     return new TranslatorPacket() {
-
       @Override
       public long getCompanyId() {
         return translatorPacket.getCompanyId();
@@ -95,7 +97,6 @@ public class DeepLTranslator implements Translator {
       public String getTargetLanguageId() {
         return translatorPacket.getTargetLanguageId();
       }
-
     };
   }
 
@@ -122,8 +123,17 @@ public class DeepLTranslator implements Translator {
 
     return translateResponse.translations.get(0).text;
   }
+
+  @Activate
+  @Modified
+  protected void activate(Map<String, Object> properties) {
+    _deepLTranslatorConfiguration = ConfigurableUtil.createConfigurable(
+        DeepLTranslatorConfiguration.class, properties);
+  }
   private static final Log _log = LogFactoryUtil.getLog(
       DeepLTranslator.class);
+
+  private volatile DeepLTranslatorConfiguration _deepLTranslatorConfiguration;
 
   @Reference
   private DeepLClient _deepLClient;
