@@ -2,8 +2,6 @@ package com.liferay.translation.translator.deepl.internal.configuration.persiste
 
 import com.liferay.portal.configuration.persistence.listener.ConfigurationModelListener;
 import com.liferay.portal.configuration.persistence.listener.ConfigurationModelListenerException;
-import com.liferay.portal.kernel.json.JSONFactoryUtil;
-import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.LocaleThreadLocal;
@@ -27,28 +25,20 @@ public class DeepLTranslatorConfigurationModelListener implements ConfigurationM
             throws ConfigurationModelListenerException {
 
         boolean enabled = GetterUtil.getBoolean(properties.get("enabled"));
-        String serviceAccountPrivateKey = GetterUtil.getString(
-                properties.get("serviceAccountPrivateKey"));
+        String authKey = GetterUtil.getString(properties.get("authKey"));
 
-        if (enabled && !_isValid(serviceAccountPrivateKey)) {
+        if (enabled && !_isValid(authKey)) {
             throw new ConfigurationModelListenerException(
                     _language.get(
                             LocaleThreadLocal.getThemeDisplayLocale(),
-                            "the-service-account-private-key-must-be-in-json-format"),
+                            "the-auth-key-must-be-configured"),
                     DeepLTranslatorConfiguration.class, getClass(),
                     properties);
         }
     }
 
-    private boolean _isValid(String serviceAccountPrivateKey) {
-        try {
-            JSONObject jsonObject = JSONFactoryUtil.createJSONObject(
-                    serviceAccountPrivateKey);
-
-            return jsonObject.length() > 0;
-        } catch (Exception exception) {
-            return false;
-        }
+    protected boolean _isValid(String authKey) {
+        return !authKey.isEmpty();
     }
 
     @Reference

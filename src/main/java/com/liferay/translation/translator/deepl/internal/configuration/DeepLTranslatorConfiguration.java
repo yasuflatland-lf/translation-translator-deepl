@@ -24,9 +24,15 @@ public interface DeepLTranslatorConfiguration {
     public boolean enabled();
 
     @Meta.AD(
-            deflt = "", description = "service-account-private-key-description",
-            name = "service-account-private-key", required = false
+            deflt = "", description = "auth-key-description",
+            name = "auth-key", required = false
     )
-    public String serviceAccountPrivateKey();
+    public String authKey();
+
+    @Meta.AD(
+            deflt = "https://api-free.deepl.com/v2/translate", description = "url-description",
+            name = "url", required = false
+    )
+    public String url();
 
 }
