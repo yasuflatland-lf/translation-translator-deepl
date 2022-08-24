@@ -12,6 +12,8 @@ import com.liferay.portal.kernel.util.Validator;
 import com.liferay.translation.translator.Translator;
 import com.liferay.translation.translator.TranslatorPacket;
 import com.liferay.translation.translator.deepl.internal.configuration.DeepLTranslatorConfiguration;
+import com.liferay.translation.translator.deepl.internal.constants.DeepLConstants;
+import com.liferay.translation.translator.deepl.internal.model.SupportedLanguage;
 import com.liferay.translation.translator.deepl.internal.model.TranslateResponse;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -19,9 +21,7 @@ import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Yasuyuki Takeo
@@ -49,6 +49,37 @@ public class DeepLTranslator implements Translator {
     return list.get(0);
   }
 
+  protected Boolean _verifyLanguage(List<String> deepLLanguages, List<String> compareLanguages) {
+    for (String lang : compareLanguages) {
+      if (Collections.disjoint(deepLLanguages, Arrays.asList(lang))) {
+        _log.error("DeepL does not support " + lang + ". Abort processing translation.");
+        return false;
+      }
+    }
+    return true;
+  }
+
+  protected List<String> _getSupportedLanguages(
+      DeepLTranslatorConfiguration deepLTranslatorConfiguration) {
+    List<SupportedLanguage> supportedLanguages
+        = null;
+    try {
+      supportedLanguages = _deepLClient.verifySupportedLanguage(
+          deepLTranslatorConfiguration.authKey(),
+          DeepLConstants.TARGET, DeepLConstants.SUPPORTED_LANGUAGE_INQ_URL
+      );
+    } catch (IOException e) {
+      _log.error("Failed to call supported language list." + System.lineSeparator() + e.getLocalizedMessage());
+      return new ArrayList<>();
+    }
+
+    List<String> languages = new ArrayList<>();
+    supportedLanguages.forEach(sl -> {
+      languages.add(sl.language);
+    });
+    return languages;
+  }
+
   @Override
   public TranslatorPacket translate(TranslatorPacket translatorPacket) throws PortalException {
     if (!isEnabled(translatorPacket.getCompanyId())) {
@@ -63,9 +94,18 @@ public class DeepLTranslator implements Translator {
     Map<String, String> translatedFieldsMap = new HashMap<>();
 
     String sourceLanguageCode = _getLanguageCode(
-        translatorPacket.getSourceLanguageId());
+        translatorPacket.getSourceLanguageId()).toUpperCase();
     String targetLanguageCode = _getLanguageCode(
-        translatorPacket.getTargetLanguageId());
+        translatorPacket.getTargetLanguageId()).toUpperCase();
+
+    List<String> supportedLanguages = _getSupportedLanguages(deepLTranslatorConfiguration);
+    // Verify languages are supported or return.
+    if (!_verifyLanguage(
+        supportedLanguages, Arrays.asList(targetLanguageCode))
+    ) {
+      _log.error("No target language available for " + targetLanguageCode + ". Supported languages are: " + String.join(",", supportedLanguages));
+      return translatorPacket;
+    }
 
     Map<String, String> fieldsMap = translatorPacket.getFieldsMap();
 
@@ -130,6 +170,7 @@ public class DeepLTranslator implements Translator {
     _deepLTranslatorConfiguration = ConfigurableUtil.createConfigurable(
         DeepLTranslatorConfiguration.class, properties);
   }
+
   private static final Log _log = LogFactoryUtil.getLog(
       DeepLTranslator.class);
 

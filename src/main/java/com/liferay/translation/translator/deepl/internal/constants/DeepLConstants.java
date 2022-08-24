@@ -14,7 +14,13 @@ public class DeepLConstants {
     public static final String TEXT = "text";
 
     public static final String SOURCE_LANG = "source_lang";
-
     public static final String TARGET_LANG = "target_lang";
+
+    /**
+     * Verifying the supported languages
+     */
+    public static final String TARGET = "target";
+
+    public static final String SUPPORTED_LANGUAGE_INQ_URL = "https://api-free.deepl.com/v2/languages";
 
 }

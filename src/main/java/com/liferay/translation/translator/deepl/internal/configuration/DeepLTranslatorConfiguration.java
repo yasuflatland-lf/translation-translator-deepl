@@ -34,5 +34,4 @@ public interface DeepLTranslatorConfiguration {
             name = "url", required = false
     )
     public String url();
-
 }
