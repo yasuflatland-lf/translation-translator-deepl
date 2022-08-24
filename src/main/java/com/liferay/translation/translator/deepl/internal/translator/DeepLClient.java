@@ -40,6 +40,9 @@ public class DeepLClient {
   protected String _fetch(
       String authKey, String text, String sourcelang, String targetLang, String url) throws IOException {
 
+    // The API document is here
+    // https://www.deepl.com/ja/docs-api/translating-text/example/
+
     // Build request
     Http.Options options = new Http.Options();
 
@@ -86,6 +89,9 @@ public class DeepLClient {
 
   protected String _verifySupportedLanguage(
       String authKey, String target, String url) throws IOException {
+
+    // The API document is here
+    // https://www.deepl.com/docs-api/other-functions/listing-supported-languages
 
     // Build request
     Http.Options options = new Http.Options();
