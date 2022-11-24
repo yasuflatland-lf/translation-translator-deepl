@@ -20,3 +20,4 @@ DeepL translator for Web Content Automated translation.
 1. `git clone` this repository under `modules`
 
 1. Go to the root of cloned repository folder and run `blade deploy`
+<img width="1266" alt="translation_config" src="https://user-images.githubusercontent.com/2855663/203754550-474e0440-cbec-4885-8822-679a22ba4656.png">
